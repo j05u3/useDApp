@@ -30,8 +30,9 @@ export function usePromiseTransaction(chainId: number | undefined, options?: Tra
           transactionName: options?.transactionName,
         })
         const receipt = await transaction.wait()
-        setState({ receipt, transaction, status: 'Success', chainId })
-        return receipt
+        const newState = { receipt, transaction, status: 'Success', chainId }
+        setState(newState)
+        return newState
       } catch (e: any) {
         const errorMessage = e.error?.message ?? e.reason ?? e.data?.message ?? e.message
         if (transaction) {
@@ -53,21 +54,26 @@ export function usePromiseTransaction(chainId: number | undefined, options?: Tra
               chainId,
             })
 
-            setState({
+            const newState = {
               status,
               transaction: e.replacement,
               originalTransaction: transaction,
               receipt: e.receipt,
               errorMessage,
               chainId,
-            })
+            }
+            setState(newState)
+            return newState
           } else {
-            setState({ status: 'Fail', transaction, receipt: e.receipt, errorMessage, chainId })
+            const newState = { status: 'Fail', transaction, receipt: e.receipt, errorMessage, chainId }
+            setState(newState)
+            return newState
           }
         } else {
-          setState({ status: 'Exception', errorMessage, chainId })
+          const newState = { status: 'Exception', errorMessage, chainId }
+          setState(newState)
+          return newState
         }
-        return undefined
       }
     },
     [chainId, setState, addTransaction, options]

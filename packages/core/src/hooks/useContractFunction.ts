@@ -30,7 +30,8 @@ export function useContractFunction(contract: Contract, functionName: string, op
   const send = useCallback(
     async (...args: any[]) => {
       const contractWithSigner = connectContractToSigner(contract, options, library)
-      const receipt = await promiseTransaction(contractWithSigner[functionName](...args))
+      const newState = await promiseTransaction(contractWithSigner[functionName](...args))
+      const receipt = newState.receipt;
       if (receipt?.logs) {
         const events = receipt.logs.reduce((accumulatedLogs, log) => {
           try {
@@ -43,6 +44,7 @@ export function useContractFunction(contract: Contract, functionName: string, op
         }, [] as LogDescription[])
         setEvents(events)
       }
+      return newState
     },
     [contract, functionName, options, library]
   )
